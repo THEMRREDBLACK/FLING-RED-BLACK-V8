@@ -1,0 +1,329 @@
+local teleportDistance = 5  -- Distância para teleportar ao redor do jogador
+
+local teleportSpeed = 200   -- Velocidade do teleporte
+
+local isTeleporting = false -- Variável para controlar o teleporte
+
+
+
+local Gui = Instance.new("ScreenGui")
+
+local TextBox = Instance.new("TextBox")
+
+local TestButton = Instance.new("TextButton")
+
+local VoidButton = Instance.new("TextButton")
+
+local DraggableFrame = Instance.new("Frame")
+
+local StatusLabel = Instance.new("TextLabel")
+
+local Background = Instance.new("ImageLabel") -- Adicionado ImageLabel para fundo
+
+
+
+-- Configuração do GUI
+
+Gui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+Gui.Name = "FLING RED BLACK"
+
+
+
+-- Configuração do Frame arrastável
+
+DraggableFrame.Parent = Gui
+
+DraggableFrame.Size = UDim2.new(0, 300, 0, 250)
+
+DraggableFrame.Position = UDim2.new(0.5, -150, 0.5, -125)
+
+DraggableFrame.BackgroundColor3 = Color3.fromRGB(139, 69, 19)  -- Cor marrom
+
+DraggableFrame.Active = true
+
+DraggableFrame.Draggable = true
+
+
+
+-- Configuração do ImageLabel de fundo
+
+Background.Parent = DraggableFrame
+
+Background.Size = UDim2.new(1, 0, 1, 0)
+
+Background.Position = UDim2.new(0, 0, 0, 0)
+
+Background.Image = "rbxassetid://136004624621442" -- Certifique-se de que este é o ID correto
+
+Background.BackgroundColor3 = Color3.new(1, 1, 1) -- Cor branca como fundo
+
+Background.BorderSizePixel = 0 -- Sem borda
+
+
+
+-- Configuração do TextBox
+
+TextBox.Parent = DraggableFrame
+
+TextBox.Size = UDim2.new(0, 200, 0, 50)
+
+TextBox.Position = UDim2.new(0.5, -100, 0.05, 0)
+
+TextBox.BackgroundColor3 = Color3.fromRGB(0, 0, 255)  -- Cor azul
+
+TextBox.TextColor3 = Color3.fromRGB(0, 255, 0)  -- Texto verde
+
+TextBox.PlaceholderText = "Digite parte do nome"
+
+TextBox.Name = "PlayerNickBox"
+
+
+
+-- Configuração do botão "FLING BETA"
+
+TestButton.Parent = DraggableFrame
+
+TestButton.Size = UDim2.new(0, 200, 0, 50)
+
+TestButton.Position = UDim2.new(0.5, -100, 0.3, 0)
+
+TestButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)  -- Cor azul
+
+TestButton.TextColor3 = Color3.fromRGB(0, 255, 0)  -- Texto verde
+
+TestButton.Text = "FLING BETA"
+
+TestButton.Name = "TestButton"
+
+
+
+-- Configuração do botão "JOGAR NO VOID"
+
+VoidButton.Parent = DraggableFrame
+
+VoidButton.Size = UDim2.new(0, 200, 0, 50)
+
+VoidButton.Position = UDim2.new(0.5, -100, 0.55, 0)
+
+VoidButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)  -- Cor azul
+
+VoidButton.TextColor3 = Color3.fromRGB(0, 255, 0)  -- Texto verde
+
+VoidButton.Text = "JOGAR NO VOID"
+
+VoidButton.Name = "VoidButton"
+
+
+
+-- Configuração do Label de Status
+
+StatusLabel.Parent = DraggableFrame
+
+StatusLabel.Size = UDim2.new(0, 200, 0, 50)
+
+StatusLabel.Position = UDim2.new(0.5, -100, 0.8, 0)
+
+StatusLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 255)  -- Cor azul
+
+StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)  -- Texto verde
+
+StatusLabel.Text = ""
+
+StatusLabel.Name = "StatusLabel"
+
+
+
+-- Função para teleportar ao redor do jogador ou carro
+
+local function teleportAroundPlayer(player)
+
+    spawn(function()
+
+        while isTeleporting do
+
+            if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+
+                local humanoidRootPart = player.Character.HumanoidRootPart
+
+                local randomAngle = math.random() * 2 * math.pi
+
+                local offsetX = math.cos(randomAngle) * teleportDistance
+
+                local offsetZ = math.sin(randomAngle) * teleportDistance
+
+                game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(humanoidRootPart.Position + Vector3.new(offsetX, 0, offsetZ)))
+
+
+
+                -- Teleportar o carro se o jogador estiver dentro de um veículo desancorado
+
+                local seat = game.Players.LocalPlayer.Character:FindFirstChildOfClass("VehicleSeat")
+
+                if seat and not seat.Anchored then
+
+                    seat.Parent:SetPrimaryPartCFrame(CFrame.new(humanoidRootPart.Position + Vector3.new(offsetX, 0, offsetZ)))
+
+                end
+
+            end
+
+            wait(1/teleportSpeed)  -- Ajuste do intervalo para corresponder à velocidade do teleporte
+
+        end
+
+    end)
+
+end
+
+
+
+-- Função para teletransportar quando o jogador sentar no sofá
+
+local function teleportOnSofa(player)
+
+    if player and player.Character and player.Backpack:FindFirstChild("Sofá") then
+
+        local sofa = player.Backpack["Sofá"]
+
+        sofa.ChildAdded:Connect(function(child)
+
+            if child:IsA("Seat") and child.Occupant then
+
+                game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(67022016512, 67022016512, -30348027904))
+
+            end
+
+        end)
+
+    end
+
+end
+
+
+
+-- Função para teleportar para o "VOID"
+
+local function teleportToVoid()
+
+    game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(670222727727273737016512, 670220373737316512, -30348737373773747027904))
+
+end
+
+
+
+-- Evento para o botão "FLING BETA"
+
+TestButton.MouseButton1Click:Connect(function()
+
+    local searchText = TextBox.Text:lower()
+
+    local player = nil
+
+    for _, p in ipairs(game.Players:GetPlayers()) do
+
+        if p.Name:lower():find(searchText) or p.DisplayName:lower():find(searchText) then
+
+            player = p
+
+            break
+
+        end
+
+    end
+
+
+
+    if player then
+
+        isTeleporting = not isTeleporting
+
+        if isTeleporting then
+
+            TestButton.Text = "Parar"
+
+            StatusLabel.Text = "Teleportando ao redor do jogador..."
+
+            
+
+            -- Aumentar velocidade do humanoide
+
+            local humanoid = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+
+            if humanoid then
+
+                humanoid.WalkSpeed = 10000
+
+            end
+
+
+
+            teleportAroundPlayer(player)
+
+            teleportOnSofa(player)
+
+        else
+
+            TestButton.Text = "FLING BETA"
+
+            StatusLabel.Text = "Teleporte parado."
+
+
+
+            -- Restaurar velocidade do humanoide ao valor padrão (16)
+
+            local humanoid = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+
+            if humanoid then
+
+                humanoid.WalkSpeed = 16
+
+            end
+
+        end
+
+    else
+
+        StatusLabel.Text = "Jogador não encontrado!"
+
+    end
+
+end)
+
+
+
+-- Evento para o botão "JOGAR NO VOID"
+
+VoidButton.MouseButton1Click:Connect(function()
+
+    teleportToVoid()
+
+    StatusLabel.Text = "Teletransportado para o VOID."
+
+end)
+
+
+
+-- Evento para parar o teleporte ao morrer (não fechar GUI)
+
+game.Players.LocalPlayer.Character.Humanoid.Died:Connect(function()
+
+    isTeleporting = false
+
+    TestButton.Text = "FLING BETA"
+
+    StatusLabel.Text = "Teleporte parado."
+
+
+
+    -- Restaurar velocidade do humanoide ao valor padrão (16)
+
+    local humanoid = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+
+    if humanoid then
+
+        humanoid.WalkSpeed = 30
+
+    end
+
+end)
